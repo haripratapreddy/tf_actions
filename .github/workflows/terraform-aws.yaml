@@ -7,9 +7,10 @@ on:
   workflow_dispatch:
     inputs:
       aws_account:
-        description: 'AWS Account Number'
+        description: 'AWS Account Numbers'
         required: true
         # default: '058264181012' # Default AWS Account
+        type: choice
         options:
         - 058264181012
         - 018264181012
