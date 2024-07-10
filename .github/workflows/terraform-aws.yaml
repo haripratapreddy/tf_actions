@@ -9,7 +9,7 @@ on:
       aws_account:
         description: 'AWS Account Number'
         required: true
-        default: ['058264181012'] # Default AWS Account
+        # default: ['058264181012'] # Default AWS Account
         options:
         - 018264181012
         - 028264181045
