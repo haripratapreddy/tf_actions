@@ -45,8 +45,8 @@ jobs:
     - name: Set up AWS credentials
       uses: aws-actions/configure-aws-credentials@v1
       with:
-        aws-access-key-id: ${{ secrets['AWS_ACCESS_KEY_ID_' + inputs.aws_account] }}
-        aws-secret-access-key: ${{ secrets['AWS_SECRET_ACCESS_KEY_' + inputs.aws_account] }}
+        aws-access-key-id: ${{ secrets[format('AWS_ACCESS_KEY_ID_{0}', inputs.aws_account)] }}
+        aws-secret-access-key: ${{ secrets[format('AWS_SECRET_ACCESS_KEY_{0}', inputs.aws_account)] }}
         aws-region: us-east-1
 
     - name: Terraform Init
