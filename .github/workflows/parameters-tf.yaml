@@ -1,4 +1,4 @@
-name: Deploy AWS EKS
+name: Deploy_AWS
  
 on:
   workflow_dispatch:
