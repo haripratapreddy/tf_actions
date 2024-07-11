@@ -1,9 +1,6 @@
 name: Deploy Terraform Configuration
 
 on:
-  push:
-    branches:
-      - dev1
   workflow_dispatch:
     inputs:
       aws_account:
