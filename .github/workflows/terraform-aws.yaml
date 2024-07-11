@@ -1,9 +1,6 @@
 name: Deploy Terraform Configuration
 
 on:
-  # push:
-  #   branches:
-  #     - dev1
   workflow_dispatch:
     inputs:
       aws_account:
@@ -12,7 +9,7 @@ on:
         # default: '058264181012' # Default AWS Account
         type: choice
         options:
-        - 058264181012
+        - 058264181012_account_name
         - 018264181012
         - 028264181045
         - 038264181012
@@ -28,7 +25,7 @@ on:
         - 014264181012
         - 015264181012
         - 016264181012
-
+AWS_ACCESS_KEY_ID_058264181012_account_name
 jobs:
   deploy:
     runs-on: ubuntu-latest

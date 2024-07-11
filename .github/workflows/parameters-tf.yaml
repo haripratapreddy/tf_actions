@@ -1,0 +1,87 @@
+name: Deploy AWS EKS
+ 
+on:
+  workflow_dispatch:
+    inputs:
+      terraform_action:
+        description: 'Incase pipeline fails kindly please destroy the resources and start from fresh'
+        required: true
+        default: apply
+        type: choice
+        options:
+        - apply
+        - destroy
+      aws_account:
+        description: 'AWS Accounts'
+        required: true
+        type: choice
+        options:
+        - dev1
+        - dev
+      aws_region:
+        description: 'Provide the region where you want to create the vpc'
+        required: true
+        default: "us-east-1"
+      vpc_name:
+        description: 'Provide the vpc name>'
+        required: true
+        default: "hari_network"
+      vpc_cidr:
+        description: 'Provide the vpc cidr'
+        required: true
+        default: "10.1.0.0/16"
+      pub_subnet_cidr:
+        description: 'Please provide your pub subnet_cidr in this format xyz,abc'
+        required: true
+      pri_subnet_cidr:
+        description: 'Please provide your pri subnet_cidr in this format xyz,abc'
+        required: true
+      EIP:
+        description: 'Provide the bool value if you require to create the EIP and NAT Gateway'
+        required: true
+        default: false
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: ${{github.event.inputs.aws_account}}
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+ 
+    - name: Set up Terraform
+      uses: hashicorp/setup-terraform@v1
+      with:
+        terraform_version: '1.0.0'
+ 
+    - name: Set up AWS credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID}}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{github.event.inputs.aws_region}}
+ 
+    - name: Create .tfvars file for EKS
+      run: |
+        rm -rf aws-cloud/live/eks/terraform.tfvars && pwd
+        echo "vpc_name  = \"${{ github.event.inputs.vpc_name }}\"" > aws-cloud/live/eks/terraform.tfvars
+        echo "vpc_cidr = \"${{ github.event.inputs.vpc_cidr }}\"" >> aws-cloud/live/eks/terraform.tfvars
+        echo "pub_subnet_cidr = \"${{ github.event.inputs.pub_subnet_cidr }}\"" >> aws-cloud/live/eks/terraform.tfvars
+        echo "pri_subnet_cidr = \"${{ github.event.inputs.pri_subnet_cidr }}\"" >> aws-cloud/live/eks/terraform.tfvars
+        echo "EIP = \"${{ github.event.inputs.EIP }}\"" >> aws-cloud/live/eks/terraform.tfvars
+        echo "aws_region = \"${{ github.event.inputs.aws_region }}\"" >> aws-cloud/live/eks/terraform.tfvars
+ 
+    - name: Terraform Destroy
+      if: ${{github.event.inputs.terraform_action}} == 'destroy'
+      run: terraform destroy -auto-approve
+    - name: Terraform Init
+      if: ${{github.event.inputs.terraform_action}} == 'apply'
+      run: terraform init'
+    - name: Terraform Validate
+      if: ${{github.event.inputs.terraform_action}} == 'apply'
+      run: terraform validate
+    - name: Terraform Plan
+      if: ${{github.event.inputs.terraform_action}} == 'apply'
+      run: terraform plan
+    # - name: Terraform Apply
+    #   if: ${{github.event.inputs.terraform_action}} == 'apply'
+    #   run: terraform apply -auto-approve

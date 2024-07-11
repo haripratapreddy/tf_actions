@@ -1,0 +1,7 @@
+# vpc_name           = "<Provide the vpc name>"
+# vpc_cidr           = "<Provide the vpc cidr> Eg: 10.3.0.0/16"
+# pub_subnet_cidr    = ["10.3.1.0/24", "10.3.2.0/24"]
+# pri_subnet_cidr    = ["10.3.101.0/24", "10.3.102.0/24"]
+# num_of_pub_subnets = 2
+# num_of_pri_subnets = 2
+# EIP                = false
