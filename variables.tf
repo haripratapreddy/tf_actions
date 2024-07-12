@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+
+>>>>>>> 7cd43bc (dynamic params)
 variable "vpc_name" {
   type = string
 }

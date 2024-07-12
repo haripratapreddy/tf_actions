@@ -114,4 +114,8 @@ output "pub_subnet" {
 
 output "pri_subnet" {
   value = aws_subnet.pri-subnet[*].id
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> 7cd43bc (dynamic params)
