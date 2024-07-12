@@ -25,7 +25,6 @@ on:
         - 014264181012
         - 015264181012
         - 016264181012
-AWS_ACCESS_KEY_ID_058264181012_account_name
 jobs:
   deploy:
     runs-on: ubuntu-latest
