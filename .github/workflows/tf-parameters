@@ -75,7 +75,7 @@ jobs:
       run: terraform destroy -auto-approve
     - name: Terraform Init
       if: ${{github.event.inputs.terraform_action}} == 'apply'
-      run: terraform init'
+      run: terraform init
     - name: Terraform Validate
       if: ${{github.event.inputs.terraform_action}} == 'apply'
       run: terraform validate

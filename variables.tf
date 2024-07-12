@@ -1,7 +1,7 @@
-<<<<<<< HEAD
-=======
+variable "aws_region" {
+  type = string
+}
 
->>>>>>> 7cd43bc (dynamic params)
 variable "vpc_name" {
   type = string
 }
