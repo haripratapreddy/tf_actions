@@ -33,11 +33,11 @@ on:
       pub_subnet_cidr:
         description: 'Please provide your pub subnet_cidr in this format xyz,abc'
         required: true
-        default: "10.1.3.0/24","10.1.4.0/24"
+        default: "10.1.3.0/24,10.1.4.0/24"
       pri_subnet_cidr:
         description: 'Please provide your pri subnet_cidr in this format xyz,abc'
         required: true
-        default: "10.1.1.0/24","10.1.2.0/24"
+        default: "10.1.1.0/24,10.1.2.0/24"
       EIP:
         description: 'Provide the bool value if you require to create the EIP and NAT Gateway'
         required: true
