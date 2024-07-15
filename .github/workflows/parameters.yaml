@@ -45,7 +45,7 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    environment: ${{github.event.inputs.aws_account}}
+    environment: ${{ github.event.inputs.aws_account }}
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
@@ -60,7 +60,7 @@ jobs:
       with:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID}}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: ${{github.event.inputs.aws_region}}
+        aws-region: ${{ github.event.inputs.aws_region }}
  
     - name: Create .tfvars file for EKS
       working-directory: /home/runner/work/tf_actions/tf_actions
@@ -80,17 +80,17 @@ jobs:
     #   run: terraform destroy -auto-approve
     - name: Terraform Init
       working-directory: /home/runner/work/tf_actions/tf_actions
-      if: ${{github.event.inputs.terraform_action}} == 'apply'
+      if: ${{ github.event.inputs.terraform_action }} == 'apply'
       run: terraform init
     - name: Terraform Validate
       working-directory: /home/runner/work/tf_actions/tf_actions
-      if: ${{github.event.inputs.terraform_action}} == 'apply'
+      if: ${{ github.event.inputs.terraform_action }} == 'apply'
       run: terraform validate
     - name: Terraform Plan
       working-directory: /home/runner/work/tf_actions/tf_actions
-      if: ${{github.event.inputs.terraform_action}} == 'apply'
+      if: ${{ github.event.inputs.terraform_action }} == 'apply'
       run: terraform plan
     # - name: Terraform Apply
     #   working-directory: /home/runner/work/tf_actions/tf_actions
-    #   if: ${{github.event.inputs.terraform_action}} == 'apply'
+    #   if: ${{ github.event.inputs.terraform_action }} == 'apply'
     #   run: terraform apply -auto-approve
