@@ -68,8 +68,10 @@ jobs:
         rm -rf ./terraform.tfvars && pwd
         echo "vpc_name  = \"${{ github.event.inputs.vpc_name }}\"" > ./terraform.tfvars
         echo "vpc_cidr = \"${{ github.event.inputs.vpc_cidr }}\"" >> ./terraform.tfvars
-        echo "pub_subnet_cidr = \"${{ github.event.inputs.pub_subnet_cidr }}\"" >> ./terraform.tfvars
-        echo "pri_subnet_cidr = \"${{ github.event.inputs.pri_subnet_cidr }}\"" >> ./terraform.tfvars
+        IFS=',' read -ra PUB_SUBNETS <<< "${{ github.event.inputs.pub_subnet_cidr }}"
+        echo "pub_subnet_cidr = [$(printf '\"%s\",' "${PUB_SUBNETS[@]}" | sed 's/,$//')]" >> terraform.tfvars
+        IFS=',' read -ra PRI_SUBNETS <<< "${{ github.event.inputs.pri_subnet_cidr }}"
+        echo "pri_subnet_cidr = [$(printf '\"%s\",' "${PRI_SUBNETS[@]}" | sed 's/,$//')]" >> terraform.tfvars
         echo "EIP = \"${{ github.event.inputs.EIP }}\"" >> ./terraform.tfvars
         echo "aws_region = \"${{ github.event.inputs.aws_region }}\"" >> ./terraform.tfvars
  
