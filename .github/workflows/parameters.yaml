@@ -77,7 +77,7 @@ jobs:
 
       - name: Terraform Init and Validate
         if: ${{ github.event.inputs.terraform_action }} == 'apply'
-        working-directory: ./tf_actions
+        working-directory: /home/runner/work/tf_actions/tf_actions
         run: |
           terraform init
           terraform validate
