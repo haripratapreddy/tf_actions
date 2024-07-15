@@ -1,4 +1,4 @@
-name: Deploy_AWS
+name: Deploy_AWS_backend
  
 on:
   workflow_dispatch:
