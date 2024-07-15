@@ -63,7 +63,7 @@ jobs:
         aws-region: ${{github.event.inputs.aws_region}}
  
     - name: Create .tfvars file for EKS
-      workdir: /home/runner/work/tf_actions/tf_actions
+      working-directory: /home/runner/work/tf_actions/tf_actions
       run: |
         rm -rf ./terraform.tfvars && pwd
         echo "vpc_name  = \"${{ github.event.inputs.vpc_name }}\"" > ./terraform.tfvars
