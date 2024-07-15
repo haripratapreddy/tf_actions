@@ -64,7 +64,7 @@ jobs:
           aws-region: ${{ github.event.inputs.aws_region }}
 
       - name: Create .tfvars file for EKS
-        working-directory: /home/runner/work/tf_actions/tf_actions
+        working-directory: ./tf_actions
         run: |
           echo "vpc_name = \"${{ github.event.inputs.vpc_name }}\"" > terraform.tfvars
           echo "vpc_cidr = \"${{ github.event.inputs.vpc_cidr }}\"" >> terraform.tfvars
@@ -72,27 +72,25 @@ jobs:
           echo "pub_subnet_cidr = [$(printf '\"%s\",' "${PUB_SUBNETS[@]}" | sed 's/,$//')]" >> terraform.tfvars
           IFS=',' read -ra PRI_SUBNETS <<< "${{ github.event.inputs.pri_subnet_cidr }}"
           echo "pri_subnet_cidr = [$(printf '\"%s\",' "${PRI_SUBNETS[@]}" | sed 's/,$//')]" >> terraform.tfvars
-          echo "EIP = ${{ github.event.inputs.EIP }}" >> terraform.tfvars
+          echo "EIP = \"${{ github.event.inputs.EIP }}\"" >> terraform.tfvars
           echo "aws_region = \"${{ github.event.inputs.aws_region }}\"" >> terraform.tfvars
 
       - name: Terraform Init and Validate
         if: ${{ github.event.inputs.terraform_action }} == 'apply'
-        working-directory: /home/runner/work/tf_actions/tf_actions
+        working-directory: ./tf_actions
         run: |
           terraform init
           terraform validate
 
       - name: Terraform Plan
         if: ${{ github.event.inputs.terraform_action }} == 'apply'
-        working-directory: /home/runner/work/tf_actions/tf_actions
+        working-directory: ./tf_actions
         run: terraform plan
 
       - name: Terraform Apply or Destroy
         if: ${{ github.event.inputs.terraform_action }} == 'apply' || ${{ github.event.inputs.terraform_action }} == 'destroy'
-        working-directory: /home/runner/work/tf_actions/tf_actions
+        working-directory: ./tf_actions
         run: terraform ${{ github.event.inputs.terraform_action }} -auto-approve
-
-
 # name: Deploy_AWS
  
 # on:
