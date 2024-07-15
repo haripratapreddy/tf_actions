@@ -56,7 +56,7 @@ jobs:
         terraform_version: '1.0.0'
  
     - name: Set up AWS credentials
-      uses: aws-actions/configure-aws-credentials@latest
+      uses: aws-actions/configure-aws-credentials@v4
       with:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID}}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -77,14 +77,18 @@ jobs:
     #   if: ${{github.event.inputs.terraform_action}} == 'destroy'
     #   run: terraform destroy -auto-approve
     - name: Terraform Init
+      working-directory: /home/runner/work/tf_actions/tf_actions
       if: ${{github.event.inputs.terraform_action}} == 'apply'
       run: terraform init
     - name: Terraform Validate
+      working-directory: /home/runner/work/tf_actions/tf_actions
       if: ${{github.event.inputs.terraform_action}} == 'apply'
       run: terraform validate
     - name: Terraform Plan
+      working-directory: /home/runner/work/tf_actions/tf_actions
       if: ${{github.event.inputs.terraform_action}} == 'apply'
       run: terraform plan
     # - name: Terraform Apply
+    #   working-directory: /home/runner/work/tf_actions/tf_actions
     #   if: ${{github.event.inputs.terraform_action}} == 'apply'
     #   run: terraform apply -auto-approve
