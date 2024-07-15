@@ -1,96 +1,191 @@
 name: Deploy_AWS
- 
+
 on:
   workflow_dispatch:
     inputs:
       terraform_action:
-        description: 'Incase pipeline fails kindly please destroy the resources and start from fresh'
+        description: 'In case the pipeline fails, please destroy the resources and start from fresh'
         required: true
-        default: apply
+        default: 'apply'
         type: choice
         options:
-        - apply
-        - destroy
+          - 'apply'
+          - 'destroy'
       aws_account:
         description: 'AWS Accounts'
         required: true
         type: choice
         options:
-        - dev1
-        - dev
+          - 'dev1'
+          - 'dev'
       aws_region:
-        description: 'Provide the region where you want to create the vpc'
+        description: 'Provide the region where you want to create the VPC'
         required: true
-        default: "us-east-1"
+        default: 'us-east-1'
       vpc_name:
-        description: 'Provide the vpc name>'
+        description: 'Provide the VPC name'
         required: true
-        default: "hari_network"
+        default: 'hari_network'
       vpc_cidr:
-        description: 'Provide the vpc cidr'
+        description: 'Provide the VPC CIDR'
         required: true
-        default: "10.1.0.0/16"
+        default: '10.1.0.0/16'
       pub_subnet_cidr:
-        description: 'Please provide your pub subnet_cidr in this format xyz,abc'
+        description: 'Please provide your public subnet CIDR in this format xyz,abc'
         required: true
-        default: "10.1.3.0/24,10.1.4.0/24"
+        default: '10.1.3.0/24,10.1.4.0/24'
       pri_subnet_cidr:
-        description: 'Please provide your pri subnet_cidr in this format xyz,abc'
+        description: 'Please provide your private subnet CIDR in this format xyz,abc'
         required: true
-        default: "10.1.1.0/24,10.1.2.0/24"
+        default: '10.1.1.0/24,10.1.2.0/24'
       EIP:
-        description: 'Provide the bool value if you require to create the EIP and NAT Gateway'
+        description: 'Provide the boolean value if you require creating the EIP and NAT Gateway'
         required: true
-        default: false
+        default: 'false'
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
     environment: ${{ github.event.inputs.aws_account }}
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v1
+        with:
+          terraform_version: '1.0.0'
+
+      - name: Set up AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ github.event.inputs.aws_region }}
+
+      - name: Create .tfvars file for EKS
+        working-directory: /home/runner/work/tf_actions/tf_actions
+        run: |
+          echo "vpc_name = \"${{ github.event.inputs.vpc_name }}\"" > terraform.tfvars
+          echo "vpc_cidr = \"${{ github.event.inputs.vpc_cidr }}\"" >> terraform.tfvars
+          IFS=',' read -ra PUB_SUBNETS <<< "${{ github.event.inputs.pub_subnet_cidr }}"
+          echo "pub_subnet_cidr = [$(printf '\"%s\",' "${PUB_SUBNETS[@]}" | sed 's/,$//')]" >> terraform.tfvars
+          IFS=',' read -ra PRI_SUBNETS <<< "${{ github.event.inputs.pri_subnet_cidr }}"
+          echo "pri_subnet_cidr = [$(printf '\"%s\",' "${PRI_SUBNETS[@]}" | sed 's/,$//')]" >> terraform.tfvars
+          echo "EIP = ${ { github.event.inputs.EIP }}" >> terraform.tfvars
+          echo "aws_region = \"${{ github.event.inputs.aws_region }}\"" >> terraform.tfvars
+
+      - name: Terraform Init and Validate
+        if: ${{ github.event.inputs.terraform_action }} == 'apply'
+        working-directory: /home/runner/work/tf_actions/tf_actions
+        run: |
+          terraform init
+          terraform validate
+
+      - name: Terraform Plan
+        if: ${{ github.event.inputs.terraform_action }} == 'apply'
+        working-directory: /home/runner/work/tf_actions/tf_actions
+        run: terraform plan
+
+      - name: Terraform Apply or Destroy
+        if: ${{ github.event.inputs.terraform_action }} == 'apply' || ${{ github.event.inputs.terraform_action }} == 'destroy'
+        working-directory: /home/runner/work/tf_actions/tf_actions
+        run: terraform ${{ github.event.inputs.terraform_action }} -auto-approve
+
+
+# name: Deploy_AWS
  
-    - name: Set up Terraform
-      uses: hashicorp/setup-terraform@v1
-      with:
-        terraform_version: '1.9.2'
+# on:
+#   workflow_dispatch:
+#     inputs:
+#       terraform_action:
+#         description: 'Incase pipeline fails kindly please destroy the resources and start from fresh'
+#         required: true
+#         default: apply
+#         type: choice
+#         options:
+#         - apply
+#         - destroy
+#       aws_account:
+#         description: 'AWS Accounts'
+#         required: true
+#         type: choice
+#         options:
+#         - dev1
+#         - dev
+#       aws_region:
+#         description: 'Provide the region where you want to create the vpc'
+#         required: true
+#         default: "us-east-1"
+#       vpc_name:
+#         description: 'Provide the vpc name>'
+#         required: true
+#         default: "hari_network"
+#       vpc_cidr:
+#         description: 'Provide the vpc cidr'
+#         required: true
+#         default: "10.1.0.0/16"
+#       pub_subnet_cidr:
+#         description: 'Please provide your pub subnet_cidr in this format xyz,abc'
+#         required: true
+#         default: "10.1.3.0/24,10.1.4.0/24"
+#       pri_subnet_cidr:
+#         description: 'Please provide your pri subnet_cidr in this format xyz,abc'
+#         required: true
+#         default: "10.1.1.0/24,10.1.2.0/24"
+#       EIP:
+#         description: 'Provide the bool value if you require to create the EIP and NAT Gateway'
+#         required: true
+#         default: false
+# jobs:
+#   deploy:
+#     runs-on: ubuntu-latest
+#     environment: ${{ github.event.inputs.aws_account }}
+#     steps:
+#     - name: Checkout code
+#       uses: actions/checkout@v2
  
-    - name: Set up AWS credentials
-      uses: aws-actions/configure-aws-credentials@v4
-      with:
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID}}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: ${{ github.event.inputs.aws_region }}
+#     - name: Set up Terraform
+#       uses: hashicorp/setup-terraform@v1
+#       with:
+#         terraform_version: '1.9.2'
  
-    - name: Create .tfvars file for EKS
-      working-directory: /home/runner/work/tf_actions/tf_actions
-      run: |
-        rm -rf ./terraform.tfvars && pwd
-        echo "vpc_name  = \"${{ github.event.inputs.vpc_name }}\"" > ./terraform.tfvars
-        echo "vpc_cidr = \"${{ github.event.inputs.vpc_cidr }}\"" >> ./terraform.tfvars
-        IFS=',' read -ra PUB_SUBNETS <<< "${{ github.event.inputs.pub_subnet_cidr }}"
-        echo "pub_subnet_cidr = [$(printf '\"%s\",' "${PUB_SUBNETS[@]}" | sed 's/,$//')]" >> terraform.tfvars
-        IFS=',' read -ra PRI_SUBNETS <<< "${{ github.event.inputs.pri_subnet_cidr }}"
-        echo "pri_subnet_cidr = [$(printf '\"%s\",' "${PRI_SUBNETS[@]}" | sed 's/,$//')]" >> terraform.tfvars
-        echo "EIP = \"${{ github.event.inputs.EIP }}\"" >> ./terraform.tfvars
-        echo "aws_region = \"${{ github.event.inputs.aws_region }}\"" >> ./terraform.tfvars
+#     - name: Set up AWS credentials
+#       uses: aws-actions/configure-aws-credentials@v4
+#       with:
+#         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID}}
+#         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+#         aws-region: ${{ github.event.inputs.aws_region }}
  
-    # - name: Terraform Destroy
-    #   if: ${{github.event.inputs.terraform_action}} == 'destroy'
-    #   run: terraform destroy -auto-approve
-    - name: Terraform Init
-      working-directory: /home/runner/work/tf_actions/tf_actions
-      if: ${{ github.event.inputs.terraform_action }} == 'apply'
-      run: terraform init
-    - name: Terraform Validate
-      working-directory: /home/runner/work/tf_actions/tf_actions
-      if: ${{ github.event.inputs.terraform_action }} == 'apply'
-      run: terraform validate
-    - name: Terraform Plan
-      working-directory: /home/runner/work/tf_actions/tf_actions
-      if: ${{ github.event.inputs.terraform_action }} == 'apply'
-      run: terraform plan
-    # - name: Terraform Apply
-    #   working-directory: /home/runner/work/tf_actions/tf_actions
-    #   if: ${{ github.event.inputs.terraform_action }} == 'apply'
-    #   run: terraform apply -auto-approve
+#     - name: Create .tfvars file for EKS
+#       working-directory: /home/runner/work/tf_actions/tf_actions
+#       run: |
+#         rm -rf ./terraform.tfvars && pwd
+#         echo "vpc_name  = \"${{ github.event.inputs.vpc_name }}\"" > ./terraform.tfvars
+#         echo "vpc_cidr = \"${{ github.event.inputs.vpc_cidr }}\"" >> ./terraform.tfvars
+#         IFS=',' read -ra PUB_SUBNETS <<< "${{ github.event.inputs.pub_subnet_cidr }}"
+#         echo "pub_subnet_cidr = [$(printf '\"%s\",' "${PUB_SUBNETS[@]}" | sed 's/,$//')]" >> terraform.tfvars
+#         IFS=',' read -ra PRI_SUBNETS <<< "${{ github.event.inputs.pri_subnet_cidr }}"
+#         echo "pri_subnet_cidr = [$(printf '\"%s\",' "${PRI_SUBNETS[@]}" | sed 's/,$//')]" >> terraform.tfvars
+#         echo "EIP = \"${{ github.event.inputs.EIP }}\"" >> ./terraform.tfvars
+#         echo "aws_region = \"${{ github.event.inputs.aws_region }}\"" >> ./terraform.tfvars
+ 
+#     # - name: Terraform Destroy
+#     #   if: ${{github.event.inputs.terraform_action}} == 'destroy'
+#     #   run: terraform destroy -auto-approve
+#     - name: Terraform Init
+#       working-directory: /home/runner/work/tf_actions/tf_actions
+#       if: ${{ github.event.inputs.terraform_action }} == 'apply'
+#       run: terraform init
+#     - name: Terraform Validate
+#       working-directory: /home/runner/work/tf_actions/tf_actions
+#       if: ${{ github.event.inputs.terraform_action }} == 'apply'
+#       run: terraform validate
+#     - name: Terraform Plan
+#       working-directory: /home/runner/work/tf_actions/tf_actions
+#       if: ${{ github.event.inputs.terraform_action }} == 'apply'
+#       run: terraform plan
+#     # - name: Terraform Apply
+#     #   working-directory: /home/runner/work/tf_actions/tf_actions
+#     #   if: ${{ github.event.inputs.terraform_action }} == 'apply'
+#     #   run: terraform apply -auto-approve
