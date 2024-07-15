@@ -91,7 +91,7 @@
 #         if: ${{ github.event.inputs.terraform_action }} == 'apply' || ${{ github.event.inputs.terraform_action }} == 'destroy'
 #         working-directory: ./tf_actions
 #         run: terraform ${{ github.event.inputs.terraform_action }} -auto-approve
-# name: Deploy_AWS
+name: Deploy_AWS
  
 on:
   workflow_dispatch:
