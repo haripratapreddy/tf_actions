@@ -21,11 +21,11 @@ on:
       s3_bucket:
         description: 'S3 Bucket for Terraform State'
         required: true
-        default: 'ec2-glue-athena-test'
+        default: "ec2-glue-athena-test"
       dynamodb:
         description: 'dynamodb for Terraform State'
         required: true
-        default: 'statelock'
+        default: "statelock"
       aws_region:
         description: 'Provide the region where you want to create the vpc'
         required: true
