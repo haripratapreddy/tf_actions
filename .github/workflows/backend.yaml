@@ -18,6 +18,14 @@ on:
         options:
         - dev1
         - dev
+      s3_bucket:
+        description: 'S3 Bucket for Terraform State'
+        required: true
+        default: 'ec2-glue-athena-test'
+      dynamodb:
+        description: 'dynamodb for Terraform State'
+        required: true
+        default: 'statelock'
       aws_region:
         description: 'Provide the region where you want to create the vpc'
         required: true
@@ -81,7 +89,8 @@ jobs:
       - name: Terraform Init
         working-directory: /home/runner/work/tf_actions/tf_actions
         if: ${{ github.event.inputs.terraform_action }} == 'apply'
-        run: terraform init
+        run: | 
+        terraform init -backend-config="bucket=${{ github.event.inputs.s3_bucket }}" -backend-config="region=${{ github.event.inputs.aws_region }}" -backend-config="dynamodb_table=${{ github.event.inputs.dynamodb }}"
       - name: Terraform Validate
         working-directory: /home/runner/work/tf_actions/tf_actions
         if: ${{ github.event.inputs.terraform_action }} == 'apply'
@@ -94,3 +103,5 @@ jobs:
         working-directory: /home/runner/work/tf_actions/tf_actions
         if: ${{ github.event.inputs.terraform_action }} == 'apply'
         run: terraform apply -auto-approve
+
+ 
