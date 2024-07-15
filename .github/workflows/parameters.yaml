@@ -72,7 +72,7 @@ jobs:
           echo "pub_subnet_cidr = [$(printf '\"%s\",' "${PUB_SUBNETS[@]}" | sed 's/,$//')]" >> terraform.tfvars
           IFS=',' read -ra PRI_SUBNETS <<< "${{ github.event.inputs.pri_subnet_cidr }}"
           echo "pri_subnet_cidr = [$(printf '\"%s\",' "${PRI_SUBNETS[@]}" | sed 's/,$//')]" >> terraform.tfvars
-          echo "EIP = ${ { github.event.inputs.EIP }}" >> terraform.tfvars
+          echo "EIP = ${{ github.event.inputs.EIP }}" >> terraform.tfvars
           echo "aws_region = \"${{ github.event.inputs.aws_region }}\"" >> terraform.tfvars
 
       - name: Terraform Init and Validate
