@@ -83,10 +83,10 @@ jobs:
           echo "EIP = \"${{ github.event.inputs.EIP }}\"" >> ./terraform.tfvars
           echo "aws_region = \"${{ github.event.inputs.aws_region }}\"" >> ./terraform.tfvars
   
-      - name: Terraform Destroy
-        working-directory: /home/runner/work/tf_actions/tf_actions
-        if: ${{ github.event.inputs.terraform_action }} == 'destroy'
-        run: terraform destroy -auto-approve
+      # - name: Terraform Destroy
+      #   working-directory: /home/runner/work/tf_actions/tf_actions
+      #   if: ${{ github.event.inputs.terraform_action }} == 'destroy'
+      #   run: terraform destroy -auto-approve
       - name: Terraform Init
         working-directory: /home/runner/work/tf_actions/tf_actions
         if: ${{ github.event.inputs.terraform_action }} == 'apply'
