@@ -90,11 +90,11 @@ jobs:
       - name: Create backend.conf file
         working-directory: /home/runner/work/tf_actions/tf_actions
         run: |
-          rm -rf ./backend.conf && pwd
-          echo "bucket  = \"${{ github.event.inputs.s3_bucket }}\"" > ./backend.conf
-          echo "key = \"${{ github.event.inputs.s3_bucket_key }}\"" >> ./backend.conf
-          echo "aws_region = \"${{ github.event.inputs.aws_region }}\"" >> ./backend.conf
-          echo "dynamodb_table = \"${{ github.event.inputs.dynamodb }}\"" >> ./backend.conf
+          rm -rf ./backend.tfvars && pwd
+          echo "bucket  = \"${{ github.event.inputs.s3_bucket }}\"" > ./backend.tfvars
+          echo "key = \"${{ github.event.inputs.s3_bucket_key }}\"" >> ./backend.tfvars
+          echo "aws_region = \"${{ github.event.inputs.aws_region }}\"" >> ./backend.tfvars
+          echo "dynamodb_table = \"${{ github.event.inputs.dynamodb }}\"" >> ./backend.tfvars
   
   
       # - name: Terraform Destroy
@@ -105,7 +105,7 @@ jobs:
         working-directory: /home/runner/work/tf_actions/tf_actions
         if: ${{ github.event.inputs.terraform_action }} == 'apply'
         run: | 
-          terraform init -backend-config="bucket=${{ github.event.inputs.s3_bucket }}" -backend-config="region=${{ github.event.inputs.aws_region }}" -backend-config="dynamodb_table=${{ github.event.inputs.dynamodb }}"
+          terraform init -backend-config=./backend.tfvars
       - name: Terraform Validate
         working-directory: /home/runner/work/tf_actions/tf_actions
         if: ${{ github.event.inputs.terraform_action }} == 'apply'
