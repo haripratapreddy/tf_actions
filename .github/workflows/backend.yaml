@@ -6,7 +6,7 @@ on:
       terraform_action:
         description: 'Incase pipeline fails kindly please destroy the resources and start from fresh'
         required: true
-        default: apply
+        # default: apply
         type: choice
         options:
         - apply
@@ -105,7 +105,7 @@ jobs:
         run: terraform init -backend-config=./backend.tfvars
       - name: Terraform Validate
         working-directory: /home/runner/work/tf_actions/tf_actions
-        if: ${{ github.event.inputs.terraform_action }} == 'apply'
+        # if: ${{ github.event.inputs.terraform_action }} == 'apply'
         run: terraform validate
       - name: Terraform Destroy
         working-directory: /home/runner/work/tf_actions/tf_actions
@@ -113,11 +113,11 @@ jobs:
         run: terraform destroy -auto-approve
       - name: Terraform Plan
         working-directory: /home/runner/work/tf_actions/tf_actions
-        if: ${{github.event.inputs.terraform_action}} == 'apply'
+        if: ${{ github.event.inputs.terraform_action }} == 'apply'
         run: terraform plan
       - name: Terraform Apply
         working-directory: /home/runner/work/tf_actions/tf_actions
-        if: ${{github.event.inputs.terraform_action}} == 'apply'
+        if: ${{ github.event.inputs.terraform_action }} == 'apply'
         run: terraform apply -auto-approve
 
  
