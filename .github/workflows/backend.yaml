@@ -97,10 +97,10 @@ jobs:
           echo "dynamodb_table = \"${{ github.event.inputs.dynamodb }}\"" >> ./backend.tfvars
   
   
-      # - name: Terraform Destroy
-      #   working-directory: /home/runner/work/tf_actions/tf_actions
-      #   if: ${{ github.event.inputs.terraform_action }} == 'destroy'
-      #   run: terraform destroy -auto-approve
+      - name: Terraform Destroy
+        working-directory: /home/runner/work/tf_actions/tf_actions
+        if: ${{ github.event.inputs.terraform_action }} == 'destroy'
+        run: terraform destroy -auto-approve
       - name: Terraform Init
         working-directory: /home/runner/work/tf_actions/tf_actions
         if: ${{ github.event.inputs.terraform_action }} == 'apply'
