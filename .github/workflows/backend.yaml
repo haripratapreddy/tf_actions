@@ -98,21 +98,19 @@ jobs:
           echo "region = \"${{ github.event.inputs.aws_region }}\"" >> ./backend.tfvars
           echo "dynamodb_table = \"${{ github.event.inputs.dynamodb }}\"" >> ./backend.tfvars
           cat ./backend.tfvars
-  
-  
-      - name: Terraform Destroy
-        working-directory: /home/runner/work/tf_actions/tf_actions
-        if: ${{ github.event.inputs.terraform_action }} == 'destroy'
-        run: terraform destroy -auto-approve
+
       - name: Terraform Init
         working-directory: /home/runner/work/tf_actions/tf_actions
         # if: ${{ github.event.inputs.terraform_action }} == 'apply'
-        run: | 
-          terraform init -backend-config=./backend.tfvars
+        run: terraform init -backend-config=./backend.tfvars
       - name: Terraform Validate
         working-directory: /home/runner/work/tf_actions/tf_actions
         if: ${{ github.event.inputs.terraform_action }} == 'apply'
         run: terraform validate
+      - name: Terraform Destroy
+        working-directory: /home/runner/work/tf_actions/tf_actions
+        if: ${{ github.event.inputs.terraform_action }} == 'destroy'
+        run: terraform destroy -auto-approve
       - name: Terraform Plan
         working-directory: /home/runner/work/tf_actions/tf_actions
         if: ${{ github.event.inputs.terraform_action }} == 'apply'
