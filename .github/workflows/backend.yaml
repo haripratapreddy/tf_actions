@@ -109,15 +109,15 @@ jobs:
         run: terraform validate
       - name: Terraform Destroy
         working-directory: /home/runner/work/tf_actions/tf_actions
-        if: ${{ github.event.inputs.terraform_action }} == 'destroy'
+        if: ${{ github.event.inputs.terraform_action  == 'destroy' }}
         run: terraform destroy -auto-approve
       - name: Terraform Plan
         working-directory: /home/runner/work/tf_actions/tf_actions
-        if: ${{ github.event.inputs.terraform_action }} == 'apply'
+        if: ${{ github.event.inputs.terraform_action  == 'apply' }}
         run: terraform plan
       - name: Terraform Apply
         working-directory: /home/runner/work/tf_actions/tf_actions
-        if: ${{ github.event.inputs.terraform_action }} == 'apply'
+        if: ${{ github.event.inputs.terraform_action  == 'apply' }}
         run: terraform apply -auto-approve
 
  
