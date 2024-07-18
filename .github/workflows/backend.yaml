@@ -29,7 +29,7 @@ on:
       dynamodb:
         description: 'dynamodb for backend Terraform State'
         required: true
-        default: "statelock"
+        default: "statelock-tf"
       aws_region:
         description: 'Provide the region where you want to create the vpc'
         required: true
@@ -86,6 +86,7 @@ jobs:
           echo "pri_subnet_cidr = [$(printf '\"%s\",' "${PRI_SUBNETS[@]}" | sed 's/,$//')]" >> terraform.tfvars
           echo "EIP = \"${{ github.event.inputs.EIP }}\"" >> ./terraform.tfvars
           echo "aws_region = \"${{ github.event.inputs.aws_region }}\"" >> ./terraform.tfvars
+          cat ./terraform.tfvars
       
       - name: Create backend.conf file
         working-directory: /home/runner/work/tf_actions/tf_actions
@@ -95,6 +96,7 @@ jobs:
           # echo "key = \"${{ github.event.inputs.s3_bucket_key }}\"" >> ./backend.tfvars
           echo "region = \"${{ github.event.inputs.aws_region }}\"" >> ./backend.tfvars
           echo "dynamodb_table = \"${{ github.event.inputs.dynamodb }}\"" >> ./backend.tfvars
+          cat ./backend.tfvars
   
   
       # - name: Terraform Destroy
