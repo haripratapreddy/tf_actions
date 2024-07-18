@@ -22,10 +22,10 @@ on:
         description: 'S3 Bucket for backend Terraform State'
         required: true
         default: "ec2-glue-athena-test"
-      s3_bucket_key:
-        description: 'S3 Bucket key for backend Terraform State'
-        required: true
-        default: tfstate
+      # s3_bucket_key:
+      #   description: 'S3 Bucket key for backend Terraform State'
+      #   required: true
+      #   default: tfstate
       dynamodb:
         description: 'dynamodb for backend Terraform State'
         required: true
