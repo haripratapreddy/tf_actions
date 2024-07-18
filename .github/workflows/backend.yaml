@@ -93,7 +93,7 @@ jobs:
           rm -rf ./backend.tfvars && pwd
           echo "bucket  = \"${{ github.event.inputs.s3_bucket }}\"" > ./backend.tfvars
           echo "key = \"${{ github.event.inputs.s3_bucket_key }}\"" >> ./backend.tfvars
-          echo "aws_region = \"${{ github.event.inputs.aws_region }}\"" >> ./backend.tfvars
+          echo "region = \"${{ github.event.inputs.aws_region }}\"" >> ./backend.tfvars
           echo "dynamodb_table = \"${{ github.event.inputs.dynamodb }}\"" >> ./backend.tfvars
   
   
