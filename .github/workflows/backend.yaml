@@ -92,8 +92,9 @@ jobs:
         working-directory: /home/runner/work/tf_actions/tf_actions
         run: |
           rm -rf ./backend.tfvars && pwd
+          echo "key  = \"${{ github.event.inputs.s3_bucket }}\"" > ./backend.tfvars
           echo "bucket  = \"${{ github.event.inputs.s3_bucket }}\"" > ./backend.tfvars
-          # echo "key = \"${{ github.event.inputs.s3_bucket_key }}\"" >> ./backend.tfvars
+          echo "key = \"tf-state\"" >> ./backend.tfvars
           echo "region = \"${{ github.event.inputs.aws_region }}\"" >> ./backend.tfvars
           echo "dynamodb_table = \"${{ github.event.inputs.dynamodb }}\"" >> ./backend.tfvars
           cat ./backend.tfvars
