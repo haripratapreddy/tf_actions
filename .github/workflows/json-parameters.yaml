@@ -1,0 +1,18 @@
+name: Parameters_JSON
+
+on:
+  workflow_dispatch:
+    inputs:
+      config:
+        description: 'JSON string containing the VPC name and CIDR'
+        required: true
+        type: string
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Read JSON input
+        run: echo "Received JSON: ${{ github.event.inputs.config }}"
