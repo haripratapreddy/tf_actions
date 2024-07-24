@@ -46,3 +46,35 @@ jobs:
           # Continue with other variables
           echo "pub_subnet_cidr = \"$pub_subnet_cidr"" >> ./terraform.tfvars
           cat ./terraform.tfvars
+
+
+        run: |
+          CONFIG_JSON='${{ github.event.inputs.config }}'
+          # Extracting individual values from JSON
+          vpc_name=$(echo $CONFIG_JSON | jq -r '.vpc_name')
+          vpc_cidr=$(echo $CONFIG_JSON | jq -r '.vpc_cidr')
+          pub_subnet_cidr=$(echo $CONFIG_JSON | jq -r '.pub_subnet_cidr')
+          pri_subnet_cidr=$(echo $CONFIG_JSON | jq -r '.pri_subnet_cidr')
+          EIP=$(echo $CONFIG_JSON | jq -r '.EIP')
+          aws_region=$(echo $CONFIG_JSON | jq -r '.aws_region')
+
+          # Remove existing terraform.tfvars file and print working directory
+          rm -rf ./terraform.tfvars && pwd
+
+          # Write new values to terraform.tfvars
+          echo "vpc_name  = \"$vpc_name\"" > ./terraform.tfvars
+          echo "vpc_cidr = \"$vpc_cidr\"" >> ./terraform.tfvars
+
+          # Handle public subnet CIDRs
+          IFS=',' read -ra PUB_SUBNETS <<< "$pub_subnet_cidr"
+          echo "pub_subnet_cidr = [$(printf '\"%s\",' "${PUB_SUBNETS[@]}" | sed 's/,$//')]" >> ./terraform.tfvars
+
+          # Handle private subnet CIDRs
+          IFS=',' read -ra PRI_SUBNETS <<< "$pri_subnet_cidr"
+          echo "pri_subnet_cidr = [$(printf '\"%s\",' "${PRI_SUBNETS[@]}" | sed 's/,$//')]" >> ./terraform.tfvars
+
+          echo "EIP = \"$EIP\"" >> ./terraform.tfvars
+          echo "aws_region = \"$aws_region\"" >> ./terraform.tfvars
+
+          # Display the contents of the terraform.tfvars file
+          cat ./terraform.tfvars
