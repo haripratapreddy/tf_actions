@@ -4,15 +4,45 @@ on:
   workflow_dispatch:
     inputs:
       config:
-        description: 'JSON string containing the VPC name and CIDR'
+        description: 'All configuration settings in JSON format'
         required: true
         type: string
+        default: '{"terraform_action":"apply","aws_account":"dev1","s3_bucket":"ec2-glue-athena-test","dynamodb":"statelock-tf","aws_region":"us-east-1","vpc_name":"hari_network","vpc_cidr":"10.1.0.0/16","pub_subnet_cidr":"10.1.3.0/24,10.1.4.0/24","pri_subnet_cidr":"10.1.1.0/24,10.1.2.0/24","EIP":false}'
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    environment: ${{ fromJson(github.event.inputs.config).aws_account }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
-      - name: Read JSON input
-        run: echo "Received JSON: ${{ github.event.inputs.config }}"
+        uses: actions/checkout@v4
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: '1.9.2'
+
+      - name: Set up AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ fromJson(github.event.inputs.config).aws_region }}
+
+      - name: Create .tfvars file
+        working-directory: /home/runner/work/tf_actions/tf_actions
+        run: |
+          CONFIG_JSON='${{ github.event.inputs.config }}'
+          terraform_action=$(echo $CONFIG_JSON | jq -r '.terraform_action')
+          vpc_name=$(echo $CONFIG_JSON | jq -r '.vpc_name')
+          vpc_cidr=$(echo $CONFIG_JSON | jq -r '.vpc_cidr')
+          pub_subnet_cidr=$(echo $CONFIG_JSON | jq -r '.pub_subnet_cidr')
+          pri_subnet_cidr=$(echo $CONFIG_JSON | jq -r '.pri_subnet_cidr')
+          EIP=$(echo $CONFIG_JSON | jq -r '.EIP')
+          aws_region=$(echo $CONFIG_JSON | jq -r '.aws_region')
+          # Create terraform.tfvars with extracted values
+          echo "vpc_name  = \"$vpc_name\"" > ./terraform.tfvars
+          echo "vpc_cidr = \"$vpc_cidr\"" >> ./terraform.tfvars
+          # Continue with other variables
+          echo "pub_subnet_cidr = \"$pub_subnet_cidr"" >> ./terraform.tfvars
+          cat ./terraform.tfvars
