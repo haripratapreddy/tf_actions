@@ -15,4 +15,5 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
       - name: Read JSON input
-        run: echo "Received JSON: ${{ github.event.inputs.config }}"
+        run: |
+          echo "Received JSON: ${{ github.event.inputs.config }}"
