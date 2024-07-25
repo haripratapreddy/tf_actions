@@ -7,12 +7,28 @@ on:
         description: 'All configuration settings in JSON format'
         required: true
         type: string
-        default: '{"terraform_action":"apply","aws_account":"dev1","s3_bucket":"ec2-glue-athena-test","dynamodb":"statelock-tf","aws_region":"us-east-1","vpc_name":"hari_network","vpc_cidr":"10.1.0.0/16","pub_subnet_cidr":"10.1.3.0/24,10.1.4.0/24","pri_subnet_cidr":"10.1.1.0/24,10.1.2.0/24","EIP":false}'
-
+        # default: '{"terraform_action":"apply","aws_account":"dev1","s3_bucket":"ec2-glue-athena-test","dynamodb":"statelock-tf","aws_region":"us-east-1","vpc_name":"hari_network","vpc_cidr":"10.1.0.0/16","pub_subnet_cidr":"10.1.3.0/24,10.1.4.0/24","pri_subnet_cidr":"10.1.1.0/24,10.1.2.0/24","EIP":false}'
+        default: '{"s3_bucket":"ec2-glue-athena-test", "bucket_key":"tfstate","dynamodb_table":"statelock-tf","aws_region":"us-east-1","vpc_name":"hari_network","vpc_cidr":"10.1.0.0/16","pub_subnet_cidr":"10.1.3.0/24,10.1.4.0/24","pri_subnet_cidr":"10.1.1.0/24,10.1.2.0/24","EIP":false}'
+      
+      terraform_action:
+        description: 'Incase pipeline fails kindly please destroy the resources and start from fresh'
+        required: true
+        default: apply 
+        type: choice
+        options:
+        - apply
+        - destroy
+        aws_account:
+          description: 'AWS Accounts'
+          required: true
+          type: choice
+          options:
+          - dev1
+          - dev
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    environment: ${{ fromJson(github.event.inputs.config).aws_account }}
+    environment: ${{ github.event.inputs.aws_account }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -31,23 +47,6 @@ jobs:
 
       - name: Create .tfvars file
         working-directory: /home/runner/work/tf_actions/tf_actions
-        run: |
-          CONFIG_JSON='${{ github.event.inputs.config }}'
-          terraform_action=$(echo $CONFIG_JSON | jq -r '.terraform_action')
-          vpc_name=$(echo $CONFIG_JSON | jq -r '.vpc_name')
-          vpc_cidr=$(echo $CONFIG_JSON | jq -r '.vpc_cidr')
-          pub_subnet_cidr=$(echo $CONFIG_JSON | jq -r '.pub_subnet_cidr')
-          pri_subnet_cidr=$(echo $CONFIG_JSON | jq -r '.pri_subnet_cidr')
-          EIP=$(echo $CONFIG_JSON | jq -r '.EIP')
-          aws_region=$(echo $CONFIG_JSON | jq -r '.aws_region')
-          # Create terraform.tfvars with extracted values
-          echo "vpc_name  = \"$vpc_name\"" > ./terraform.tfvars
-          echo "vpc_cidr = \"$vpc_cidr\"" >> ./terraform.tfvars
-          # Continue with other variables
-          echo "pub_subnet_cidr = \"$pub_subnet_cidr"" >> ./terraform.tfvars
-          cat ./terraform.tfvars
-
-
         run: |
           CONFIG_JSON='${{ github.event.inputs.config }}'
           # Extracting individual values from JSON
@@ -78,3 +77,39 @@ jobs:
 
           # Display the contents of the terraform.tfvars file
           cat ./terraform.tfvars
+
+      - name: Create backend.conf file
+        run: |
+          CONFIG_JSON='${{ github.event.inputs.config }}'
+          # Extracting individual values from JSON
+          key=$(echo $CONFIG_JSON | jq -r '.bucket_key')
+          bucket=$(echo $CONFIG_JSON | jq -r '.s3_bucket')
+          region=$(echo #CONFIG_JSON | jq -r '.aws_region')
+          dynamodb=$(echo $CONFIG_JSON | jq -r '.dynamodb_table')
+
+          echo "key = \"$key\"" >> .backend.conf
+          echo "bucket = \"$bucket\"" >> ./backend.tfvars
+          echo "region = \"$region\"" >> ./backend.tfvars
+          echo "dynamodb_table = \"$dynamodb\"" >> ./backend.tfvars
+          cat ./backend.tfvars
+
+      - name: Terraform Init
+        working-directory: /home/runner/work/tf_actions/tf_actions
+        # if: ${{ github.event.inputs.terraform_action }} == 'apply'
+        run: terraform init -backend-config=./backend.tfvars
+      - name: Terraform Validate
+        working-directory: /home/runner/work/tf_actions/tf_actions
+        # if: ${{ github.event.inputs.terraform_action }} == 'apply'
+        run: terraform validate
+      - name: Terraform Destroy
+        working-directory: /home/runner/work/tf_actions/tf_actions
+        if: ${{ github.event.inputs.terraform_action  == 'destroy' }}
+        run: terraform destroy -auto-approve
+      - name: Terraform Plan
+        working-directory: /home/runner/work/tf_actions/tf_actions
+        if: ${{ github.event.inputs.terraform_action  == 'apply' }}
+        run: terraform plan
+      - name: Terraform Apply
+        working-directory: /home/runner/work/tf_actions/tf_actions
+        if: ${{ github.event.inputs.terraform_action  == 'apply' }}
+        run: terraform apply -auto-approve
