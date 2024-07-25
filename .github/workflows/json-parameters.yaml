@@ -91,29 +91,29 @@ jobs:
           # Remove existing terraform.tfvars file and list working directory
           rm -rf ./backend.tfvars && ls -lrt
 
-          echo "key = \"$key\"" >> ./backend.tfvars
+          echo "key = \"$key\"" > ./backend.tfvars
           echo "bucket = \"$bucket\"" >> ./backend.tfvars
           echo "region = \"$region\"" >> ./backend.tfvars
           echo "dynamodb_table = \"$dynamodb\"" >> ./backend.tfvars
           cat ./backend.tfvars
 
-      - name: Terraform Init
-        working-directory: /home/runner/work/tf_actions/tf_actions
-        # if: ${{ github.event.inputs.terraform_action }} == 'apply'
-        run: terraform init -backend-config=./backend.tfvars
-      - name: Terraform Validate
-        working-directory: /home/runner/work/tf_actions/tf_actions
-        # if: ${{ github.event.inputs.terraform_action }} == 'apply'
-        run: terraform validate
-      - name: Terraform Destroy
-        working-directory: /home/runner/work/tf_actions/tf_actions
-        if: ${{ github.event.inputs.terraform_action  == 'destroy' }}
-        run: terraform destroy -auto-approve
-      - name: Terraform Plan
-        working-directory: /home/runner/work/tf_actions/tf_actions
-        if: ${{ github.event.inputs.terraform_action  == 'apply' }}
-        run: terraform plan
-      - name: Terraform Apply
-        working-directory: /home/runner/work/tf_actions/tf_actions
-        if: ${{ github.event.inputs.terraform_action  == 'apply' }}
-        run: terraform apply -auto-approve
+      # - name: Terraform Init
+      #   working-directory: /home/runner/work/tf_actions/tf_actions
+      #   # if: ${{ github.event.inputs.terraform_action }} == 'apply'
+      #   run: terraform init -backend-config=./backend.tfvars
+      # - name: Terraform Validate
+      #   working-directory: /home/runner/work/tf_actions/tf_actions
+      #   # if: ${{ github.event.inputs.terraform_action }} == 'apply'
+      #   run: terraform validate
+      # - name: Terraform Destroy
+      #   working-directory: /home/runner/work/tf_actions/tf_actions
+      #   if: ${{ github.event.inputs.terraform_action  == 'destroy' }}
+      #   run: terraform destroy -auto-approve
+      # - name: Terraform Plan
+      #   working-directory: /home/runner/work/tf_actions/tf_actions
+      #   if: ${{ github.event.inputs.terraform_action  == 'apply' }}
+      #   run: terraform plan
+      # - name: Terraform Apply
+      #   working-directory: /home/runner/work/tf_actions/tf_actions
+      #   if: ${{ github.event.inputs.terraform_action  == 'apply' }}
+      #   run: terraform apply -auto-approve
