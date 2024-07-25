@@ -88,7 +88,10 @@ jobs:
           region=$(echo #CONFIG_JSON | jq -r '.aws_region')
           dynamodb=$(echo $CONFIG_JSON | jq -r '.dynamodb_table')
 
-          echo "key = \"$key\"" >> .backend.tfvars
+          # Remove existing terraform.tfvars file and list working directory
+          rm -rf ./backend.tfvars && ls -lrt
+
+          echo "key = \"$key\"" >> ./backend.tfvars
           echo "bucket = \"$bucket\"" >> ./backend.tfvars
           echo "region = \"$region\"" >> ./backend.tfvars
           echo "dynamodb_table = \"$dynamodb\"" >> ./backend.tfvars
