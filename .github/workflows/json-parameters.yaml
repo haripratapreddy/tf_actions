@@ -85,7 +85,7 @@ jobs:
           # Extracting individual values from JSON
           key=$(echo $CONFIG_JSON | jq -r '.bucket_key')
           bucket=$(echo $CONFIG_JSON | jq -r '.s3_bucket')
-          region=$(echo #CONFIG_JSON | jq -r '.aws_region')
+          region=$(echo $CONFIG_JSON | jq -r '.aws_region')
           dynamodb=$(echo $CONFIG_JSON | jq -r '.dynamodb_table')
 
           # Remove existing terraform.tfvars file and list working directory

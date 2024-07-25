@@ -121,3 +121,19 @@ jobs:
         run: terraform apply -auto-approve
 
  
+
+CONFIG_JSON="${{ github.event.inputs.config }}"
+# Extracting individual values from JSON
+key=$(echo $CONFIG_JSON | jq -r '.bucket_key')
+bucket=$(echo $CONFIG_JSON | jq -r '.s3_bucket')
+region=$(echo $CONFIG_JSON | jq -r '.aws_region')
+dynamodb=$(echo $CONFIG_JSON | jq -r '.dynamodb_table')
+
+# Remove existing terraform.tfvars file and list working directory
+rm -rf ./backend.tfvars && ls -lrt
+
+echo "key = \"$key\"" > ./backend.tfvars
+echo "bucket = \"$bucket\"" >> ./backend.tfvars
+echo "region = \"$region\"" >> ./backend.tfvars
+echo "dynamodb_table = \"$dynamodb\"" >> ./backend.tfvars
+cat ./backend.tfvars
