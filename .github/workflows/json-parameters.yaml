@@ -18,13 +18,14 @@ on:
         options:
         - apply
         - destroy
-        aws_account:
-          description: 'AWS Accounts'
-          required: true
-          type: choice
-          options:
-          - dev1
-          - dev
+        
+      aws_account:
+        description: 'AWS Accounts'
+        required: true
+        type: choice
+        options:
+        - dev1
+        - dev
 jobs:
   deploy:
     runs-on: ubuntu-latest
